@@ -1,0 +1,104 @@
+# Generated with runic (docs/DECISIONS.md). Adapted from odin-gtk (MIT, docs/LICENSE-odin-gtk.md).
+version: 0
+platforms:
+  - Linux x86_64
+from:
+  language: c
+  shared.linux: 'libpango-1.0.so'
+  headers: ../build/sys/usr/include/pango-1.0/pango/pango.h
+  includedirs:
+    - ../stdinc/
+    - ../build/sys/usr/include/harfbuzz/
+    - ../build/sys/usr/include/pango-1.0/
+    - ../build/sys/usr/include/glib-2.0/
+    - ../build/sys/usr/lib/x86_64-linux-gnu/glib-2.0/include/
+  defines:
+    PANGO_ENABLE_ENGINE: 1
+    GLIB_DISABLE_DEPRECATION_WARNINGS: 1
+  load_all_includes: true
+  extern:
+    - "../build/sys/usr/include/harfbuzz/*"
+    - "../stdinc/*"
+    - "../stdinc/sys/*"
+    - "../build/sys/usr/include/glib-2.0/glib/*"
+    - "../build/sys/usr/include/glib-2.0/glib/deprecated/*"
+    - "../build/sys/usr/include/glib-2.0/glib.h"
+    - "../build/sys/usr/include/glib-2.0/gobject/*"
+    - "../build/sys/usr/include/glib-2.0/glib-object.h"
+    - "../build/sys/usr/include/glib-2.0/gio/*"
+    - "../build/sys/usr/include/glib-2.0/gio.h"
+    - "../build/sys/usr/lib/x86_64-linux-gnu/glib-2.0/include/*"
+  ignore:
+    types:
+      - '*autoptr*'
+      - va_list
+    constants:
+      - '*_INIT'
+      - '_PANGO*'
+      - 'PANGO_DEPRECATED*'
+      - 'PANGO_AVAILABLE*'
+    functions:
+      - '*autoptr*'
+      - '*auto_cleanup*'
+  overwrite:
+    # Bitfield structs runic cannot lay out. LayoutLine is a byte array of its x86_64 size (use
+    # the accessor procedures). The other three are declared by hand in hand.odin; their
+    # placeholders are deleted by scripts/postprocess.sh.
+    types:
+      _PangoLogAttr: '#SInt8 #Attr Arr 1 #AttrEnd'
+      _PangoAttrSize: '#SInt8 #Attr Arr 1 #AttrEnd'
+      _PangoGlyphVisAttr: '#SInt8 #Attr Arr 1 #AttrEnd'
+      _PangoLayoutLine: '#SInt8 #Attr Arr 32 #AttrEnd'
+to:
+  language: odin
+  package: pango
+  out: pango.odin
+  no_build_tag: true
+  trim_prefix:
+    types:
+      - g
+      - G
+      - Pango
+    functions:
+      - pango_
+      - glib_
+    variables:
+      - pango_
+    constants:
+      - PANGO_
+      - SHOW_
+      - SHAPE_
+      - LAYOUT_SERIALIZE_
+      - LAYOUT_DESERIALIZE_
+    enum_type_name: true
+  extern:
+    sources:
+      "../stdinc/stdarg.h": "core:c/libc"
+      "../stdinc/stdio.h": "core:c/libc"
+      "../stdinc/pthread.h": "core:c/libc"
+      "../stdinc/sys/types.h": "core:sys/linux"
+      "../build/sys/usr/include/glib-2.0/glib/*": "glib glib:glib"
+      "../build/sys/usr/include/glib-2.0/glib.h": "glib glib:glib"
+      "../build/sys/usr/include/glib-2.0/glib/deprecated/*": "glib glib:glib"
+      "../build/sys/usr/lib/x86_64-linux-gnu/glib-2.0/include/*": "glib glib:glib"
+      "../build/sys/usr/include/glib-2.0/gobject/*": "gobj glib:gobject"
+      "../build/sys/usr/include/glib-2.0/glib-object.h": "gobj glib:gobject"
+      "../build/sys/usr/include/glib-2.0/gio/*": "gio glib:gio"
+      "../build/sys/usr/include/glib-2.0/gio.h": "gio glib:gio"
+    trim_prefix: true
+  detect:
+    parameters: declared
+    arrays:
+      coverage_from_bytes: [bytes]
+      font_descriptions_free: [descs]
+      font_get_features: [features]
+      break_: [attrs]
+      get_log_attrs: [attrs]
+      default_break: [attrs]
+      tailor_break: [attrs]
+      attr_break: [attrs]
+      glyph_string_get_logical_widths: [logical_widths]
+      glyph_string_index_to_x_full: [attrs]
+      shape_item: [log_attrs]
+      glyph_item_letter_space: [log_attrs]
+      glyph_item_get_logical_widths: [logical_widths]
